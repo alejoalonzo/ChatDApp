@@ -1,26 +1,34 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Dark mode color palette */
+  
+  /* Main background */
+  --bg-primary: #3f464d;
+  
+  /* Grays for dialog boxes and containers */
+  --bg-secondary: #2e353d;
+  --bg-tertiary: #22272d;
+  --bg-accent: #454b57;
+  
+  /* Primary color (yellow) */
+  --primary: #FFBF00;
+  --primary-hover: #ffc000;
+  
+  /* Whites for text */
+  --text-primary: #ffffff;           /* Absolute white */
+  --text-secondary: rgba(255, 255, 255, 0.8);  /* 80% opacity */
+  --text-tertiary: rgba(255, 255, 255, 0.6);   /* 60% opacity */
+  
+  /* Original variables updated */
+  --background: var(--bg-primary);
+  --foreground: var(--text-primary);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* Removed @theme rule that caused error */
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
 }
