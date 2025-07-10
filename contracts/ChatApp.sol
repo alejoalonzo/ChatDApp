@@ -43,8 +43,8 @@ contract ChatApp {
         getAllUsers.push(allUserStruct(_username, msg.sender));
     }
 
-    //Get Username
-    function getUsername(address _user) external view returns (string memory) {
+    //Get UserName
+    function getUserName(address _user) external view returns (string memory) {
         require(userExists(_user), "User does not exist");
         return userList[_user].username;
     }
@@ -103,7 +103,7 @@ contract ChatApp {
         userList[me].friendList.push(newFriend);
     }
 
-    //Get my friend
+    //Get my friends
     function getMyFriendList() external view returns (friend[] memory) {
         require(userExists(msg.sender), "You must create an account first");
         return userList[msg.sender].friendList;
