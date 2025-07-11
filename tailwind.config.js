@@ -6,6 +6,12 @@ module.exports = {
     "./Context/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
+    screens: {
+      // Mobile first breakpoints
+      sm: "768px", // Tablet
+      md: "1024px", // Desktop
+      lg: "1440px", // Large desktop
+    },
     extend: {
       fontFamily: {
         sans: ["var(--font-dm-sans)", "system-ui", "sans-serif"],
