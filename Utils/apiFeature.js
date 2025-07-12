@@ -3,6 +3,15 @@ import { Web3Modal } from "web3modal";
 
 import { ChatAppABI, ChatAppAddress } from "@/Context/Constants";
 
+// Returns the first account from the connected wallet, if not NULL
+export const GetCurrentAccount = async () => {
+  const { ethereum } = window;
+  if (!ethereum) return null;
+
+  const accounts = await ethereum.request({ method: "eth_accounts" });
+  return accounts.length ? accounts[0] : null;
+};
+
 // Function to check if  the wallet is connected
 export const CheckIfWalletIsConnected = async () => {
   try {
@@ -43,7 +52,14 @@ export const ConnectWallet = async () => {
     console.log("Connected account:", accounts[0]);
     return accounts[0];
   } catch (error) {
+    // Usuario rechazó la conexión → error.code === 4001
+    if (error.code === 4001) {
+      console.log("User cancelled wallet connection");
+      return null; // cancelación limpia
+    }
+    // Otro tipo de fallo (red, provider, etc.)
     console.error("Error connecting wallet:", error);
+    throw error; // deja que capas superiores lo manejen
   }
 };
 

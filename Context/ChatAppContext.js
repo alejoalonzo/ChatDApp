@@ -2,9 +2,12 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { ethers } from "ethers";
+import { ChatAppABI, ChatAppAddress } from "@/Context/Constants";
 
 //INTERNAL IMPORTS
 import {
+  GetCurrentAccount,
   CheckIfWalletIsConnected,
   ConnectWallet,
   ConnectToContract,
@@ -28,35 +31,49 @@ export const ChatAppProvider = ({ children }) => {
   const [currentUserAddress, setCurrentUserAddress] = useState("");
 
   //FETCH DATA TIME OF THE PAGE LOAD
-  const fetchData = async () => {
+  // 1) Sólo lee si ya hay wallet conectada (SIN pop-up)
+  const checkWallet = async () => {
     try {
-      //FROM CONTRACT.SOL****
-      //Get Contract
-      const contract = await ConnectToContract();
-      //Get Account
-      const connectedAccount = await ConnectWallet();
-      setAccount(connectedAccount);
+      const acc = await GetCurrentAccount();
+      if (!acc) return; // Nadie ha conectado aún
 
-      //FROM API-FEATURE****
-      //get user name
-      const userName = await contract.getUserName(connectedAccount);
-      setUserName(userName);
+      setAccount(acc);
 
-      //Get My Friends List
-      const friendList = await contract.getMyFriendsList();
-      setFriendList(friendList);
+      // Instancia provider/contract _sin_ Web3Modal
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      const contract = new ethers.Contract(ChatAppAddress, ChatAppABI, signer);
 
-      //Get All App Users
-      const userList = await contract.getAllAppUsers();
-      setUserList(userList);
+      // Carga de datos
+      setUserName(await contract.getUserName(acc));
+      setFriendList(await contract.getMyFriendsList());
+      setUserList(await contract.getAllAppUsers());
     } catch (err) {
+      console.error(err);
       setError("Please install and connect your wallet");
     }
   };
 
+  // 2) Llamada explícita desde el botón (CON pop-up)
+  const connectWallet = async () => {
+    try {
+      const acc = await ConnectWallet(); // Abre MetaMask
+
+      if (!acc) return; // Usuario canceló la conexión
+      setAccount(acc);
+
+      const contract = await ConnectToContract(); // Web3Modal aquí
+      setUserName(await contract.getUserName(acc));
+      setFriendList(await contract.getMyFriendsList());
+      setUserList(await contract.getAllAppUsers());
+    } catch (err) {
+      console.error(err);
+      setError("Wallet connection failed");
+    }
+  };
   //USE EFFECT - FETCH DATA TIME OF THE PAGE LOAD
   useEffect(() => {
-    fetchData();
+    checkWallet();
   }, []);
 
   //READ MESSAGES
@@ -147,8 +164,8 @@ export const ChatAppProvider = ({ children }) => {
         addFriend,
         sendMessage,
         readUserInfo,
-        // CheckIfWalletIsConnected,
-        // connectWallet,
+        CheckIfWalletIsConnected,
+        connectWallet,
         account,
         userName,
         friendList,
