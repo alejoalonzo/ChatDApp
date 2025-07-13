@@ -5,5 +5,6 @@ import Friend from "./Friend/Friend.jsx";
 import Loader from "./Loader/Loader.jsx";
 import Error from "./Error/Error.jsx";
 import Model from "./Model/Model.jsx";
+import Home from "./Home/Home.jsx";
 
-export { NavBar, UserCard, Filter, Friend, Loader, Error, Model };
+export { NavBar, UserCard, Filter, Friend, Loader, Error, Model, Home };

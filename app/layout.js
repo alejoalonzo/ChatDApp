@@ -5,8 +5,8 @@ import { ChatAppProvider } from "@/Context/ChatAppContext";
 const dmSans = DM_Sans({
   variable: "--font-dm-sans",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"], // Especifica los pesos que quieres
-  display: "swap", // Optimización para carga rápida
+  weight: ["300", "400", "500", "600", "700"],
+  display: "swap",
 });
 
 export const metadata = {
@@ -16,8 +16,8 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body className={`${dmSans.variable} font-sans`}>
+    <html lang="en" className={dmSans.variable}>
+      <body className="font-sans">
         <ChatAppProvider>{children}</ChatAppProvider>
       </body>
     </html>
