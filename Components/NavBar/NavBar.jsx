@@ -4,8 +4,9 @@ import Link from "next/link";
 
 //INTERNAL IMPORTS
 import { ChatAppContext } from "@/Context/ChatAppContext";
-import { Model, Error } from "../index"
+import { Model, Error, Tooltip } from "../index"
 import { MENU_ITEMS } from "@/Context/Constants";
+import { CheckIfMetaMaskInstalled } from "@/Utils/apiFeature";
 
 
 const NavBar = () => {
@@ -14,8 +15,27 @@ const NavBar = () => {
     const [active, setActive] = useState(-1); // -1 significa que ningún item del menú está activo (home)
     const [open, setOpen] = useState(false);
     const [openModel, setOpenModel] = useState(false);
+    const [isMetaMaskInstalled, setIsMetaMaskInstalled] = useState(true);
+    const [error, setError] = useState(null);
 
     const { account, userName, connectWallet } = useContext(ChatAppContext);
+
+    // Check if MetaMask is installed when component mounts
+    useEffect(() => {
+        const checkMetaMask = () => {
+            setIsMetaMaskInstalled(CheckIfMetaMaskInstalled());
+        };
+        checkMetaMask();
+    }, []);
+
+    // Handle wallet connection with MetaMask check
+    const handleConnectWallet = () => {
+        if (!isMetaMaskInstalled) {
+            setError("This decentralized application requires MetaMask to function. Please install MetaMask from https://metamask.io and refresh the page.");
+            return;
+        }
+        connectWallet();
+    };
 
     return (
         <>
@@ -93,12 +113,23 @@ const NavBar = () => {
                 <div className="p-4 border-t border-[#454b57]">
                     {/* Connect Wallet Button - Primero cuando está expandido */}
                     {!account && open && (
-                        <button
-                            onClick={connectWallet}
-                            className="w-full mb-3 px-3 py-2 rounded-lg bg-[#FFBF00] hover:bg-[#ffc000] text-[#2e353d] font-medium text-sm transition-colors"
+                        <Tooltip
+                            id="connect-wallet-desktop-tooltip"
+                            message={!isMetaMaskInstalled ? "Install MetaMask extension first" : ""}
+                            place="top"
                         >
-                            Connect Wallet
-                        </button>
+                            <button
+                                onClick={handleConnectWallet}
+                                disabled={!isMetaMaskInstalled}
+                                className={`w-full mb-3 px-3 py-2 rounded-lg font-medium text-sm transition-colors hover:opacity-80 ${
+                                    isMetaMaskInstalled
+                                        ? 'bg-[#FFBF00] hover:bg-[#ffc000] text-[#2e353d] cursor-pointer'
+                                        : 'bg-[#454b57] text-[rgba(255,255,255,0.4)] cursor-not-allowed'
+                                }`}
+                            >
+                                Connect Wallet
+                            </button>
+                        </Tooltip>
                     )}
                     
                     <div className={`flex items-center ${open ? 'space-x-3' : 'justify-center'}`}>
@@ -205,15 +236,30 @@ const NavBar = () => {
                         <div className="p-4 border-t border-[#454b57]">
                             {/* Connect Wallet Button */}
                             {!account && (
-                                <button
-                                    onClick={() => {
-                                        connectWallet();
-                                        setOpenModel(false);
-                                    }}
-                                    className="w-full mb-3 px-3 py-2 rounded-lg bg-[#FFBF00] hover:bg-[#ffc000] text-[#2e353d] font-medium text-sm transition-colors"
+                                <Tooltip
+                                    id="connect-wallet-mobile-tooltip"
+                                    message={!isMetaMaskInstalled ? "Install MetaMask extension first" : ""}
+                                    place="top"
                                 >
-                                    Connect Wallet
-                                </button>
+                                    <button
+                                        onClick={() => {
+                                            if (isMetaMaskInstalled) {
+                                                connectWallet();
+                                                setOpenModel(false);
+                                            } else {
+                                                setError("This decentralized application requires MetaMask to function. Please install MetaMask from https://metamask.io and refresh the page.");
+                                            }
+                                        }}
+                                        disabled={!isMetaMaskInstalled}
+                                        className={`w-full mb-3 px-3 py-2 rounded-lg font-medium text-sm transition-colors ${
+                                            isMetaMaskInstalled
+                                                ? 'bg-[#FFBF00] hover:bg-[#ffc000] text-[#2e353d] cursor-pointer'
+                                                : 'bg-[#454b57] text-[rgba(255,255,255,0.4)] cursor-not-allowed'
+                                        }`}
+                                    >
+                                        Connect Wallet
+                                    </button>
+                                </Tooltip>
                             )}
                             
                             <div className="flex items-center space-x-3">
@@ -235,6 +281,9 @@ const NavBar = () => {
                     </div>
                 </div>
             )}
+
+            {/* Error Modal */}
+            <Error error={error} onClose={() => setError(null)} />
         </>
     );
 }

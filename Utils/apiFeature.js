@@ -3,6 +3,17 @@ import { Web3Modal } from "web3modal";
 
 import { ChatAppABI, ChatAppAddress } from "@/Context/Constants";
 
+// Function to check if MetaMask is installed
+export const CheckIfMetaMaskInstalled = () => {
+  if (typeof window !== "undefined" && typeof window.ethereum !== "undefined") {
+    // MetaMask is installed
+    return true;
+  } else {
+    // MetaMask is not installed
+    return false;
+  }
+};
+
 // Returns the first account from the connected wallet, if not NULL
 export const GetCurrentAccount = async () => {
   const { ethereum } = window;

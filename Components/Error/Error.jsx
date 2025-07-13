@@ -25,13 +25,8 @@ const Error = ({ error, onClose, containedMode = false }) => {
 
         {/* Contenido del modal */}
         <div className="flex flex-col items-center text-center space-y-2">
-          {/* Icono de error */}
-          <div className="flex items-center justify-center">
-            <AlertTriangle className="w-12 h-12 text-white" />
-          </div>
-
           {/* Título */}
-          <h2 className="text-2xl font-bold text-[#ffffff]">Error</h2>
+          <h2 className="text-4xl font-bold text-[#ffffff] mt-2">Oops...</h2>
 
           {/* Mensaje de error */}
           <div className="space-y-2 mt-4">

@@ -7,6 +7,7 @@ import Error from "./Error/Error.jsx";
 import Model from "./Model/Model.jsx";
 import Home from "./Home/Home.jsx";
 import CreateAccountForm from "./CreateAccountForm/CreateAccountForm.jsx";
+import Tooltip from "./Tooltip/Tooltip.jsx";
 
 export {
   NavBar,
@@ -18,4 +19,5 @@ export {
   Model,
   Home,
   CreateAccountForm,
+  Tooltip,
 };
