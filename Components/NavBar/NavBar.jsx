@@ -52,7 +52,7 @@ const NavBar = () => {
                         {/* Toggle Button */}
                         <button
                             onClick={() => setOpen(!open)}
-                            className="p-2 rounded-lg hover:bg-[#454b57] transition-colors"
+                            className="p-2 rounded-lg hover:bg-[#454b57] transition-colors cursor-pointer"
                         >
                             <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 {open ? (

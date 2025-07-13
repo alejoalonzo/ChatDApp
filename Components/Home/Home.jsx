@@ -2,15 +2,26 @@
 
 import Image from "next/image";
 import { useContext, useState } from "react";
-import { User } from "lucide-react";            <h1 className="text-5xl font-black bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-400 bg-clip-text text-transparent">
-              CHAT DAPP
-            </h1>
+import { User } from "lucide-react";
+
 //INTERNAL IMPORTS
 import { ChatAppContext } from "@/Context/ChatAppContext";
-import { NavBar } from "@/Components";
+import { NavBar, CreateAccountForm, Error, Loader } from "@/Components";
 import { ConnectToContract, ConnectWallet } from "@/Utils/apiFeature";
 
 const Home = () => {
+  const [showCreateAccount, setShowCreateAccount] = useState(false);
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleCreateAccountClick = () => {
+    setShowCreateAccount(!showCreateAccount);
+  };
+
+  const handleCancelForm = () => {
+    setShowCreateAccount(false);
+  };
+
   return (
     <div className="min-h-screen">
       {/* Contenedor general - Solo visible en tablet y desktop */}
@@ -31,7 +42,7 @@ const Home = () => {
           <NavBar />
 
           {/* Contenido principal */}
-          <main className="flex-1 p-4 flex flex-col justify-center">
+          <main className="flex-1 p-4 flex flex-col justify-center relative">
             {/* Botón Create Account arriba a la derecha */}
             <div className="flex justify-between items-center mb-6">
               {/* Imagen de usuario con indicador online */}
@@ -54,7 +65,10 @@ const Home = () => {
                 <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
               </div>
 
-              <button className="bg-[#FFBF00] hover:bg-[#ffc000] text-black font-medium py-2 px-6 rounded-full transition-colors duration-200">
+              <button 
+                onClick={handleCreateAccountClick}
+                className="bg-[#FFBF00] hover:opacity-80 text-black font-medium py-2 px-6 rounded-full transition-colors duration-200 cursor-pointer"
+              >
                 Create Account
               </button>
             </div>
@@ -81,25 +95,40 @@ const Home = () => {
                 </p>
               </div>
 
-              {/* Columna derecha - Imagen */}
+              {/* Columna derecha - Imagen o Form */}
               <div className="flex justify-center">
-                <Image
-                  src="/assets/images/illustration2.png"
-                  alt="Chat DApp Illustration"
-                  width={400}
-                  height={300}
-                  className="rounded-3xl"
-                />
+                {!showCreateAccount ? (
+                  <Image
+                    src="/assets/images/illustration2.png"
+                    alt="Chat DApp Illustration"
+                    width={400}
+                    height={300}
+                    className="rounded-3xl"
+                  />
+                ) : (
+                  <CreateAccountForm 
+                    onCancel={handleCancelForm} 
+                    onError={setError}
+                    isLoading={isLoading}
+                    setIsLoading={setIsLoading}
+                  />
+                )}
               </div>
             </div>
+
+            {/* Error Modal para desktop/tablet - contenido en el main */}
+            <Error error={error} onClose={() => setError(null)} containedMode={true} />
+            
+            {/* Loader Modal para desktop/tablet - contenido en el main */}
+            <Loader isLoading={isLoading} message="Creating your account..." containedMode={true} />
           </main>
         </div>
       </div>
 
       {/* Contenido mobile - Sin contenedor */}
-      <div className="sm:hidden">
+      <div className="sm:hidden relative">
         <NavBar />
-        <main className="container mx-auto p-4 overflow-y-auto">
+        <main className="container mx-auto p-4 overflow-y-auto relative">
           {/* Botón Create Account arriba a la derecha */}
           <div className="flex justify-between items-center mb-6">
             {/* Imagen de usuario con indicador online */}
@@ -122,13 +151,16 @@ const Home = () => {
               <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
             </div>
 
-            <button className="bg-[#FFBF00] hover:bg-[#ffc000] text-black font-medium py-2 px-6 rounded-full transition-colors duration-200">
+            <button 
+              onClick={handleCreateAccountClick}
+              className="bg-[#FFBF00] hover:bg-[#ffc000] text-black font-medium py-2 px-6 rounded-full transition-colors duration-200"
+            >
               Create Account
             </button>
           </div>
 
           {/* Título principal */}
-          <div className="text-center space-y-2 mb-6" style={{ marginTop: '40px' }}>
+          <div className="text-center space-y-0 mb-6" style={{ marginTop: '50px' }}>
             <h1 className="text-3xl font-bold text-white">
               Welcome to
             </h1>
@@ -145,18 +177,33 @@ const Home = () => {
             </p>
           </div>
 
-          {/* Imagen ilustrativa */}
+          {/* Imagen ilustrativa o Form */}
           <div className="flex justify-center mb-6 px-[5%]">
-            <Image
-              src="/assets/images/illustration2.png"
-              alt="Chat DApp Illustration"
-              width={300}
-              height={225}
-              className="rounded-3xl w-full max-w-none"
-            />
+            {!showCreateAccount ? (
+              <Image
+                src="/assets/images/illustration2.png"
+                alt="Chat DApp Illustration"
+                width={300}
+                height={225}
+                className="rounded-3xl w-full max-w-none"
+              />
+            ) : (
+              <CreateAccountForm 
+                onCancel={handleCancelForm} 
+                onError={setError}
+                isLoading={isLoading}
+                setIsLoading={setIsLoading}
+              />
+            )}
           </div>
 
           <div className="grid grid-cols-1 gap-4"></div>
+
+          {/* Error Modal para mobile - contenido en el main */}
+          <Error error={error} onClose={() => setError(null)} containedMode={true} />
+          
+          {/* Loader Modal para mobile - contenido en el main */}
+          <Loader isLoading={isLoading} message="Creating your account..." containedMode={true} />
         </main>
       </div>
     </div>

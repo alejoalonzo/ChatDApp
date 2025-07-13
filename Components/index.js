@@ -6,5 +6,16 @@ import Loader from "./Loader/Loader.jsx";
 import Error from "./Error/Error.jsx";
 import Model from "./Model/Model.jsx";
 import Home from "./Home/Home.jsx";
+import CreateAccountForm from "./CreateAccountForm/CreateAccountForm.jsx";
 
-export { NavBar, UserCard, Filter, Friend, Loader, Error, Model, Home };
+export {
+  NavBar,
+  UserCard,
+  Filter,
+  Friend,
+  Loader,
+  Error,
+  Model,
+  Home,
+  CreateAccountForm,
+};
