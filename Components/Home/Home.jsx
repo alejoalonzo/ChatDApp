@@ -1,15 +1,17 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useContext } from "react";
 
 //INTERNAL IMPORTS
 import { ChatAppContext } from "@/Context/ChatAppContext";
-import { NavBar, CreateAccountForm, Error, Loader, Tooltip, CreateAccountButton, UserActive } from "@/Components";
+import { NavBar, CreateAccountForm, Error, Loader, Tooltip, CreateAccountButton, UserActive, MetaMaskConnectionPrompt } from "@/Components";
 import { CheckIfMetaMaskInstalled } from "@/Utils/apiFeature";
 
 const Home = () => {
+  const { account } = useContext(ChatAppContext);
   const [showCreateAccount, setShowCreateAccount] = useState(false);
+  const [showMetaMaskPrompt, setShowMetaMaskPrompt] = useState(false);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -18,11 +20,22 @@ const Home = () => {
       setError("This decentralized application requires MetaMask to function. Please install MetaMask from https://metamask.io and refresh the page.");
       return;
     }
+
+    // Si MetaMask está instalado pero no hay cuenta conectada
+    if (!account) {
+      setShowMetaMaskPrompt(true);
+      return;
+    }
+
     setShowCreateAccount(!showCreateAccount);
   };
 
   const handleCancelForm = () => {
     setShowCreateAccount(false);
+  };
+
+  const handleCancelMetaMaskPrompt = () => {
+    setShowMetaMaskPrompt(false);
   };
 
   return (
@@ -79,9 +92,14 @@ const Home = () => {
                 </p>
               </div>
 
-              {/* Columna derecha - Imagen o Form */}
+              {/* Columna derecha - Imagen, Form o MetaMask Prompt */}
               <div className="flex justify-center">
-                {!showCreateAccount ? (
+                {showMetaMaskPrompt ? (
+                  <MetaMaskConnectionPrompt 
+                    variant="desktop"
+                    onCancel={handleCancelMetaMaskPrompt}
+                  />
+                ) : !showCreateAccount ? (
                   <Image
                     src="/assets/images/illustration2.png"
                     alt="Chat DApp Illustration"
@@ -142,9 +160,14 @@ const Home = () => {
             </p>
           </div>
 
-          {/* Imagen ilustrativa o Form */}
+          {/* Imagen ilustrativa, Form o MetaMask Prompt */}
           <div className="flex justify-center mb-6 px-[5%]">
-            {!showCreateAccount ? (
+            {showMetaMaskPrompt ? (
+              <MetaMaskConnectionPrompt 
+                variant="mobile"
+                onCancel={handleCancelMetaMaskPrompt}
+              />
+            ) : !showCreateAccount ? (
               <Image
                 src="/assets/images/illustration2.png"
                 alt="Chat DApp Illustration"

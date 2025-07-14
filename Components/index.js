@@ -9,6 +9,7 @@ import Home from "./Home/Home.jsx";
 import CreateAccountForm from "./CreateAccountForm/CreateAccountForm.jsx";
 import Tooltip from "./Tooltip/Tooltip.jsx";
 import UserActive from "./UserActive/UserActive.jsx";
+import MetaMaskConnectionPrompt from "./MetaMaskConnectionPrompt/MetaMaskConnectionPrompt.jsx";
 import { ConnectWalletButton, CreateAccountButton } from "./buttons";
 
 export {
@@ -23,6 +24,7 @@ export {
   CreateAccountForm,
   Tooltip,
   UserActive,
+  MetaMaskConnectionPrompt,
   ConnectWalletButton,
   CreateAccountButton,
 };

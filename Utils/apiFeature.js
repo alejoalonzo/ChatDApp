@@ -1,5 +1,4 @@
 import { ethers } from "ethers";
-import { Web3Modal } from "web3modal";
 
 import { ChatAppABI, ChatAppAddress } from "@/Context/Constants";
 
@@ -78,7 +77,7 @@ export const ConnectWallet = async () => {
 const FetchContract = signerOrProvider =>
   new ethers.Contract(ChatAppAddress, ChatAppABI, signerOrProvider);
 
-//Functio to connect  to the contract
+//Function to connect to the contract
 export const ConnectToContract = async () => {
   try {
     const { ethereum } = window;
@@ -95,10 +94,8 @@ export const ConnectToContract = async () => {
       return;
     }
 
-    const web3Modal = new Web3Modal();
-    const connection = await web3Modal.connect();
-    const provider = new ethers.providers.Web3Provider(connection);
-    const signer = provider.getSigner();
+    const provider = new ethers.BrowserProvider(ethereum);
+    const signer = await provider.getSigner();
     const contract = FetchContract(signer);
 
     return contract;

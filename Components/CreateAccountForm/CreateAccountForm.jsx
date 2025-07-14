@@ -1,23 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { User, Wallet, Send, X } from "lucide-react";
 import { Error } from "@/Components";
+import { ChatAppContext } from "@/Context/ChatAppContext";
 
 const CreateAccountForm = ({ onCancel, onError, isLoading, setIsLoading }) => {
   const [name, setName] = useState("");
-  const [accountAddress, setAccountAddress] = useState("");
   const [error, setError] = useState(null);
 
-  const functionName = async ({ name, accountAddress }) => {
+  // Obtener la función createAccount del contexto
+  const { createAccount } = useContext(ChatAppContext);
+
+  const handleCreateAccount = async () => {
+    if (!name.trim()) {
+      setError("Name is required");
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
     
     try {
-      console.log("Creating account with:", { name, accountAddress });
+      console.log("Creating account with name:", name);
       
-      // Aquí agregarás la lógica para crear la cuenta
+      // Llamar a la función createAccount del contexto
+      await createAccount({ userName: name });
+      
       console.log("Account created successfully!");
+      
+      // Limpiar el formulario y cerrar
+      setName("");
+      onCancel();
       
     } catch (error) {
       console.error("Error creating account:", error);
@@ -29,11 +43,9 @@ const CreateAccountForm = ({ onCancel, onError, isLoading, setIsLoading }) => {
 
   const handleCancel = () => {
     setName("");
-    setAccountAddress("");
+    setError(null);
     onCancel();
   };
-
-  const isFormValid = name.trim() !== "" && accountAddress.trim() !== "";
 
   return (
     <div className="relative">
@@ -59,33 +71,26 @@ const CreateAccountForm = ({ onCancel, onError, isLoading, setIsLoading }) => {
             />
           </div>
           
-          {/* Input para address */}
-          <div className="relative">
-            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[rgba(255,255,255,0.6)]">
-              <Wallet className="w-5 h-5" />
+          {/* Mostrar error si existe */}
+          {error && (
+            <div className="text-red-500 text-sm text-center">
+              {error}
             </div>
-            <input
-              type="text"
-              placeholder="Wallet address"
-              value={accountAddress}
-              onChange={(e) => setAccountAddress(e.target.value)}
-              className="w-full bg-[#22272d] border border-[#454b57] rounded-xl py-3 pl-12 pr-4 text-[#ffffff] placeholder-[rgba(255,255,255,0.6)] focus:outline-none focus:border-[#FFBF00] transition-colors duration-200"
-            />
-          </div>
+          )}
           
           {/* Botones */}
           <div className="flex gap-3 mt-4">
             <button
-              onClick={() => functionName({ name, accountAddress })}
-              disabled={!isFormValid || isLoading}
+              onClick={handleCreateAccount}
+              disabled={!name.trim() || isLoading}
               className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all duration-200 ${
-                isFormValid && !isLoading
+                name.trim() && !isLoading
                   ? 'bg-[#FFBF00] hover:bg-[#ffc000] text-black'
                   : 'bg-[#454b57] text-[rgba(255,255,255,0.4)] cursor-not-allowed'
               }`}
             >
               <Send className="w-4 h-4" />
-              {isLoading ? 'Creating...' : 'Send'}
+              {isLoading ? 'Creating...' : 'Create Account'}
             </button>
             
             <button
@@ -121,33 +126,26 @@ const CreateAccountForm = ({ onCancel, onError, isLoading, setIsLoading }) => {
             />
           </div>
           
-          {/* Input para address */}
-          <div className="relative">
-            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[rgba(255,255,255,0.6)]">
-              <Wallet className="w-4 h-4" />
+          {/* Mostrar error si existe */}
+          {error && (
+            <div className="text-red-500 text-xs text-center">
+              {error}
             </div>
-            <input
-              type="text"
-              placeholder="Wallet address"
-              value={accountAddress}
-              onChange={(e) => setAccountAddress(e.target.value)}
-              className="w-full bg-[#22272d] border border-[#454b57] rounded-lg py-2 pl-10 pr-3 text-[#ffffff] text-sm placeholder-[rgba(255,255,255,0.6)] focus:outline-none focus:border-[#FFBF00] transition-colors duration-200"
-            />
-          </div>
+          )}
           
           {/* Botones */}
           <div className="flex gap-2 mt-2">
             <button
-              onClick={() => functionName({ name, accountAddress })}
-              disabled={!isFormValid || isLoading}
+              onClick={handleCreateAccount}
+              disabled={!name.trim() || isLoading}
               className={`flex-1 flex items-center justify-center gap-1 py-2 px-3 rounded-lg font-medium text-xs transition-all duration-200 ${
-                isFormValid && !isLoading
+                name.trim() && !isLoading
                   ? 'bg-[#FFBF00] hover:bg-[#ffc000] text-black'
                   : 'bg-[#454b57] text-[rgba(255,255,255,0.4)] cursor-not-allowed'
               }`}
             >
               <Send className="w-3 h-3" />
-              {isLoading ? 'Creating...' : 'Send'}
+              {isLoading ? 'Creating...' : 'Create Account'}
             </button>
             
             <button

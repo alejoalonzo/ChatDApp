@@ -40,13 +40,23 @@ export const ChatAppProvider = ({ children }) => {
       setAccount(acc);
 
       // Instancia provider/contract _sin_ Web3Modal
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const signer = provider.getSigner();
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
       const contract = new ethers.Contract(ChatAppAddress, ChatAppABI, signer);
 
-      // Carga de datos
-      setUserName(await contract.getUserName(acc));
-      setFriendList(await contract.getMyFriendsList());
+      // Verifica si el usuario existe antes de cargar datos
+      const userExists = await contract.userExists(acc);
+
+      if (userExists) {
+        // Carga de datos solo si el usuario existe
+        setUserName(await contract.getUsername(acc));
+        setFriendList(await contract.getMyFriendList());
+      } else {
+        // Usuario no tiene cuenta creada
+        setUserName("");
+        setFriendList([]);
+      }
+
       setUserList(await contract.getAllAppUsers());
     } catch (err) {
       console.error(err);
@@ -63,8 +73,20 @@ export const ChatAppProvider = ({ children }) => {
       setAccount(acc);
 
       const contract = await ConnectToContract(); // Web3Modal aquí
-      setUserName(await contract.getUserName(acc));
-      setFriendList(await contract.getMyFriendsList());
+
+      // Verifica si el usuario existe antes de cargar datos
+      const userExists = await contract.userExists(acc);
+
+      if (userExists) {
+        // Carga de datos solo si el usuario existe
+        setUserName(await contract.getUsername(acc));
+        setFriendList(await contract.getMyFriendList());
+      } else {
+        // Usuario no tiene cuenta creada
+        setUserName("");
+        setFriendList([]);
+      }
+
       setUserList(await contract.getAllAppUsers());
     } catch (err) {
       console.error(err);
@@ -148,9 +170,19 @@ export const ChatAppProvider = ({ children }) => {
   const readUserInfo = async userAddress => {
     try {
       const contract = await ConnectToContract();
-      const userName = await contract.getUserName(userAddress);
-      setCurrentUserName(userName);
-      setCurrentUserAddress(userAddress);
+
+      // Verifica si el usuario existe antes de obtener su información
+      const userExists = await contract.userExists(userAddress);
+
+      if (userExists) {
+        const userName = await contract.getUsername(userAddress);
+        setCurrentUserName(userName);
+        setCurrentUserAddress(userAddress);
+      } else {
+        setCurrentUserName("");
+        setCurrentUserAddress(userAddress);
+        setError("User does not exist");
+      }
     } catch (err) {
       setError("Error fetching user info");
     }
