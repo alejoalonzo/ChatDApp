@@ -4,7 +4,7 @@ import Link from "next/link";
 
 //INTERNAL IMPORTS
 import { ChatAppContext } from "@/Context/ChatAppContext";
-import { Model, Error, Tooltip, ConnectWalletButton } from "../index"
+import { Model, Error, Tooltip, ConnectWalletButton, LogOut } from "../index"
 import { MENU_ITEMS } from "@/Context/Constants";
 
 
@@ -67,26 +67,54 @@ const NavBar = () => {
 
                 {/* Menu Items */}
                 <div className="flex-1 py-4 overflow-y-auto">
-                    {MENU_ITEMS.map(({ href, label, icon: Icon }, index) => (
-                        <Link
-                        key={href}             // mejor que usar el índice
-                        href={href}
-                        onClick={() => setActive(index)}
-                        className={`
-                            flex items-center px-4 py-3 mx-2 rounded-lg transition-all
-                            ${active === index
-                            ? "bg-[#FFBF00] text-[#2e353d]"
-                            : "text-white hover:bg-[#454b57]"}
-                            ${open ? "justify-start space-x-3" : "justify-center"}
-                        `}
-                        >
-                        {/* Icono importado dinámicamente */}
-                        <Icon className="w-5 h-5 flex-shrink-0" />
-
-                        {/* Etiqueta solo si el sidebar está abierto */}
-                        {open && <span className="text-sm font-medium">{label}</span>}
-                        </Link>
-                    ))}
+                    {MENU_ITEMS.map(({ href, label, icon: Icon }, index) => {
+                        // Si es el item de logout, renderizar el componente LogOut
+                        if (label === "Logout") {
+                            return (
+                                <div key={href} className="px-2">
+                                    {open ? (
+                                        <LogOut 
+                                            variant="menuItem" 
+                                            containedMode={true}
+                                            className={`
+                                                ${active === index ? "bg-[#FFBF00] text-[#2e353d]" : "text-white hover:bg-[#454b57]"}
+                                            `}
+                                        />
+                                    ) : (
+                                        <div className="flex justify-center">
+                                            <LogOut 
+                                                variant="iconOnly" 
+                                                containedMode={true}
+                                                className={`
+                                                    w-10 h-10
+                                                    ${active === index ? "bg-[#FFBF00] text-[#2e353d]" : "text-white hover:bg-[#454b57]"}
+                                                `}
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        }
+                        
+                        // Para otros items, usar Link normal
+                        return (
+                            <Link
+                                key={href}
+                                href={href}
+                                onClick={() => setActive(index)}
+                                className={`
+                                    flex items-center px-4 py-3 mx-2 rounded-lg transition-all
+                                    ${active === index
+                                        ? "bg-[#FFBF00] text-[#2e353d]"
+                                        : "text-white hover:bg-[#454b57]"}
+                                    ${open ? "justify-start space-x-3" : "justify-center"}
+                                `}
+                            >
+                                <Icon className="w-5 h-5 flex-shrink-0" />
+                                {open && <span className="text-sm font-medium">{label}</span>}
+                            </Link>
+                        );
+                    })}
                 </div>
 
                 {/* User Section */}
@@ -174,26 +202,44 @@ const NavBar = () => {
 
                         {/* Menu Items */}
                         <div className="flex-1 py-4 overflow-y-auto">
-                            {MENU_ITEMS.map(({ href, label, icon: Icon }, index) => (
-                                <Link
-                                    key={href}
-                                    href={href}
-                                    onClick={() => {
-                                    setActive(index);
-                                    setOpenModel(false);
-                                    }}
-                                    className={`
-                                    flex items-center px-4 py-3 mx-2 rounded-lg space-x-3 transition-all
-                                    ${active === index
-                                        ? "bg-[#FFBF00] text-[#2e353d]"
-                                        : "text-white hover:bg-[#454b57]"}
-                                    `}
-                                >
-                                    <Icon className="w-5 h-5 flex-shrink-0" />
-                                    <span className="text-sm font-medium">{label}</span>
-                                </Link>
-                            ))}
-
+                            {MENU_ITEMS.map(({ href, label, icon: Icon }, index) => {
+                                // Si es el item de logout, renderizar el componente LogOut
+                                if (label === "Logout") {
+                                    return (
+                                        <div key={href} className="px-2">
+                                            <LogOut 
+                                                variant="menuItem" 
+                                                containedMode={true}
+                                                onClose={() => setOpenModel(false)}
+                                                className={`
+                                                    ${active === index ? "bg-[#FFBF00] text-[#2e353d]" : "text-white hover:bg-[#454b57]"}
+                                                `}
+                                            />
+                                        </div>
+                                    );
+                                }
+                                
+                                // Para otros items, usar Link normal
+                                return (
+                                    <Link
+                                        key={href}
+                                        href={href}
+                                        onClick={() => {
+                                            setActive(index);
+                                            setOpenModel(false);
+                                        }}
+                                        className={`
+                                            flex items-center px-4 py-3 mx-2 rounded-lg space-x-3 transition-all
+                                            ${active === index
+                                                ? "bg-[#FFBF00] text-[#2e353d]"
+                                                : "text-white hover:bg-[#454b57]"}
+                                        `}
+                                    >
+                                        <Icon className="w-5 h-5 flex-shrink-0" />
+                                        <span className="text-sm font-medium">{label}</span>
+                                    </Link>
+                                );
+                            })}
                         </div>
 
                         {/* User Section Mobile */}

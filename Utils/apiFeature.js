@@ -122,3 +122,82 @@ export const ConvertTime = time => {
 
   return realTime;
 };
+
+// Function to help with logout (clear local state)
+export const ClearWalletConnection = () => {
+  try {
+    // Clear any cached data in localStorage if your app uses it
+    if (typeof window !== "undefined") {
+      // Clear any stored wallet connection data
+      localStorage.removeItem("walletconnect");
+      localStorage.removeItem("WALLETCONNECT_DEEPLINK_CHOICE");
+      localStorage.removeItem("web3-connect-modal");
+      localStorage.removeItem(
+        "-walletlink:https://www.walletlink.org:DefaultActiveWallet"
+      );
+      localStorage.removeItem("ally-supports-cache");
+
+      // Clear any other wallet-related localStorage items
+      Object.keys(localStorage).forEach(key => {
+        if (
+          key.includes("wallet") ||
+          key.includes("metamask") ||
+          key.includes("web3") ||
+          key.includes("ethereum") ||
+          key.includes("connect")
+        ) {
+          localStorage.removeItem(key);
+        }
+      });
+
+      // Clear sessionStorage as well
+      sessionStorage.clear();
+    }
+
+    console.log("Local wallet connection data cleared");
+    return true;
+  } catch (error) {
+    console.error("Error clearing wallet connection:", error);
+    return false;
+  }
+};
+
+// Function to request account disconnect (note: this doesn't actually disconnect MetaMask)
+export const RequestWalletDisconnect = async () => {
+  try {
+    // Note: There's no standard way to programmatically disconnect MetaMask
+    // This is more of a local state reset
+    console.log("Requesting wallet disconnect (local state reset)");
+
+    // Clear local connection data
+    ClearWalletConnection();
+
+    // Try to revoke permissions (experimental - may not work in all cases)
+    if (typeof window !== "undefined" && window.ethereum) {
+      try {
+        // This is experimental and may not work in all MetaMask versions
+        await window.ethereum.request({
+          method: "wallet_revokePermissions",
+          params: [
+            {
+              eth_accounts: {},
+            },
+          ],
+        });
+        console.log("Permissions revoked successfully");
+      } catch (revokeError) {
+        // This is expected to fail in most cases
+        console.log(
+          "Permission revocation not supported or failed:",
+          revokeError.message
+        );
+      }
+    }
+
+    // Return success
+    return true;
+  } catch (error) {
+    console.error("Error requesting wallet disconnect:", error);
+    return false;
+  }
+};

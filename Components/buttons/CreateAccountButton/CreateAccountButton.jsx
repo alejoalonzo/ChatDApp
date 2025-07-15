@@ -46,6 +46,15 @@ const CreateAccountButton = ({
     }
   };
 
+  // Si el usuario ya tiene una cuenta, mostrar su nombre
+  if (userName) {
+    return (
+      <div className={`font-medium py-2 px-6 rounded-full bg-[#FFBF00] text-black ${className}`}>
+        {userName}
+      </div>
+    );
+  }
+
   return (
     <Tooltip
       id={`create-account-${variant}-tooltip`}

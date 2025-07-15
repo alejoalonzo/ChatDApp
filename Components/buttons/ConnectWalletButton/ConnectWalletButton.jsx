@@ -32,8 +32,8 @@ const ConnectWalletButton = ({
     
     connectWallet();
     
-    // Si es mobile y hay función de cierre, cerrar el modal
-    if (variant === "mobile" && onClose) {
+    // Si hay función de cierre, cerrar el modal/prompt
+    if (onClose) {
       onClose();
     }
   };

@@ -12,6 +12,8 @@ import {
   ConnectWallet,
   ConnectToContract,
   ConvertTime,
+  ClearWalletConnection,
+  RequestWalletDisconnect,
 } from "@/Utils/apiFeature";
 
 export const ChatAppContext = React.createContext();
@@ -25,6 +27,7 @@ export const ChatAppProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [userList, setUserList] = useState([]);
   const [error, setError] = useState("");
+  const [userLoggedOut, setUserLoggedOut] = useState(false); // Flag para logout manual
 
   //Chat User Data
   const [currentUserName, setCurrentUserName] = useState("");
@@ -34,6 +37,12 @@ export const ChatAppProvider = ({ children }) => {
   // 1) Sólo lee si ya hay wallet conectada (SIN pop-up)
   const checkWallet = async () => {
     try {
+      // Si el usuario hizo logout manual, no reconectar automáticamente
+      if (userLoggedOut) {
+        console.log("User logged out manually, skipping auto-reconnect");
+        return;
+      }
+
       const acc = await GetCurrentAccount();
       if (!acc) return; // Nadie ha conectado aún
 
@@ -48,9 +57,17 @@ export const ChatAppProvider = ({ children }) => {
       const userExists = await contract.userExists(acc);
 
       if (userExists) {
-        // Carga de datos solo si el usuario existe
-        setUserName(await contract.getUsername(acc));
-        setFriendList(await contract.getMyFriendList());
+        try {
+          // Intenta obtener el nombre del usuario
+          const username = await contract.getUsername(acc);
+          setUserName(username);
+          setFriendList(await contract.getMyFriendList());
+        } catch (usernameError) {
+          // Si falla obtener el username, probablemente hay datos corruptos
+          console.warn("User exists but username is corrupted:", usernameError);
+          setUserName("");
+          setFriendList([]);
+        }
       } else {
         // Usuario no tiene cuenta creada
         setUserName("");
@@ -59,7 +76,7 @@ export const ChatAppProvider = ({ children }) => {
 
       setUserList(await contract.getAllAppUsers());
     } catch (err) {
-      console.error(err);
+      console.error("checkWallet error:", err);
       setError("Please install and connect your wallet");
     }
   };
@@ -70,6 +87,9 @@ export const ChatAppProvider = ({ children }) => {
       const acc = await ConnectWallet(); // Abre MetaMask
 
       if (!acc) return; // Usuario canceló la conexión
+
+      // Limpiar flag de logout cuando se conecta manualmente
+      setUserLoggedOut(false);
       setAccount(acc);
 
       const contract = await ConnectToContract(); // Web3Modal aquí
@@ -78,9 +98,16 @@ export const ChatAppProvider = ({ children }) => {
       const userExists = await contract.userExists(acc);
 
       if (userExists) {
-        // Carga de datos solo si el usuario existe
-        setUserName(await contract.getUsername(acc));
-        setFriendList(await contract.getMyFriendList());
+        try {
+          // Intenta obtener el nombre del usuario
+          setUserName(await contract.getUsername(acc));
+          setFriendList(await contract.getMyFriendList());
+        } catch (usernameError) {
+          // Si falla obtener el username, probablemente hay datos corruptos
+          console.warn("User exists but username is corrupted:", usernameError);
+          setUserName("");
+          setFriendList([]);
+        }
       } else {
         // Usuario no tiene cuenta creada
         setUserName("");
@@ -96,7 +123,45 @@ export const ChatAppProvider = ({ children }) => {
   //USE EFFECT - FETCH DATA TIME OF THE PAGE LOAD
   useEffect(() => {
     checkWallet();
-  }, []);
+
+    // Escuchar cambios en las cuentas de MetaMask
+    if (typeof window !== "undefined" && window.ethereum) {
+      const handleAccountsChanged = accounts => {
+        if (accounts.length === 0) {
+          // Usuario desconectó desde MetaMask
+          console.log("User disconnected from MetaMask");
+          setUserLoggedOut(true);
+          setAccount("");
+          setUserName("");
+          setFriendList([]);
+          setFriendMessages([]);
+          setUserList([]);
+          setCurrentUserName("");
+          setCurrentUserAddress("");
+          setError("");
+          setLoading(false);
+        } else if (accounts[0] !== account && account !== "") {
+          // Usuario cambió de cuenta
+          console.log("User changed account in MetaMask");
+          setAccount(accounts[0]);
+          // Recargar datos para la nueva cuenta
+          checkWallet();
+        }
+      };
+
+      window.ethereum.on("accountsChanged", handleAccountsChanged);
+
+      // Cleanup
+      return () => {
+        if (window.ethereum.removeListener) {
+          window.ethereum.removeListener(
+            "accountsChanged",
+            handleAccountsChanged
+          );
+        }
+      };
+    }
+  }, [userLoggedOut, account]); // Ejecutar cuando cambie el estado de logout o account
 
   //READ MESSAGES
   const readMessages = async friendAddress => {
@@ -175,9 +240,16 @@ export const ChatAppProvider = ({ children }) => {
       const userExists = await contract.userExists(userAddress);
 
       if (userExists) {
-        const userName = await contract.getUsername(userAddress);
-        setCurrentUserName(userName);
-        setCurrentUserAddress(userAddress);
+        try {
+          const userName = await contract.getUsername(userAddress);
+          setCurrentUserName(userName);
+          setCurrentUserAddress(userAddress);
+        } catch (usernameError) {
+          console.warn("User exists but username is corrupted:", usernameError);
+          setCurrentUserName("");
+          setCurrentUserAddress(userAddress);
+          setError("User data is corrupted");
+        }
       } else {
         setCurrentUserName("");
         setCurrentUserAddress(userAddress);
@@ -185,6 +257,51 @@ export const ChatAppProvider = ({ children }) => {
       }
     } catch (err) {
       setError("Error fetching user info");
+    }
+  };
+
+  //LOGOUT FUNCTION
+  const logout = async () => {
+    try {
+      // Marcar que el usuario hizo logout manual
+      setUserLoggedOut(true);
+
+      // Limpiar datos locales de la wallet
+      await RequestWalletDisconnect();
+
+      // Resetear todos los estados de la aplicación
+      setAccount("");
+      setUserName("");
+      setFriendList([]);
+      setFriendMessages([]);
+      setUserList([]);
+      setCurrentUserName("");
+      setCurrentUserAddress("");
+      setError("");
+      setLoading(false);
+
+      // Intentar limpiar más datos de localStorage
+      if (typeof window !== "undefined") {
+        // Limpiar posibles datos adicionales
+        localStorage.removeItem("web3-connect-modal");
+        localStorage.removeItem(
+          "-walletlink:https://www.walletlink.org:DefaultActiveWallet"
+        );
+        localStorage.removeItem("walletconnect");
+        localStorage.removeItem("WALLETCONNECT_DEEPLINK_CHOICE");
+
+        // Limpiar sessionStorage también
+        sessionStorage.clear();
+      }
+
+      console.log(
+        "Logout successful - All states reset and local data cleared"
+      );
+      return true;
+    } catch (err) {
+      console.error("Error during logout:", err);
+      setError("Error during logout");
+      return false;
     }
   };
 
@@ -205,6 +322,7 @@ export const ChatAppProvider = ({ children }) => {
         loading,
         userList,
         error,
+        logout, // Agregado aquí
       }}
     >
       {children}

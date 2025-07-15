@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 
 //INTERNAL IMPORTS
 import { ChatAppContext } from "@/Context/ChatAppContext";
@@ -14,6 +14,14 @@ const Home = () => {
   const [showMetaMaskPrompt, setShowMetaMaskPrompt] = useState(false);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Cerrar el prompt de MetaMask automáticamente cuando la wallet se conecte y mostrar el formulario
+  useEffect(() => {
+    if (account && showMetaMaskPrompt) {
+      setShowMetaMaskPrompt(false);
+      setShowCreateAccount(true); // Mostrar el formulario después de conectar la wallet
+    }
+  }, [account, showMetaMaskPrompt]);
 
   const handleCreateAccountClick = () => {
     if (!CheckIfMetaMaskInstalled()) {
@@ -53,7 +61,7 @@ const Home = () => {
       "
       >
         {/* Contenedor flex para navbar y main en fila */}
-        <div className="flex flex-row sm:h-[calc(100vh-4rem)] md:h-[calc(100vh-6rem)] lg:h-[calc(100vh-8rem)]">
+        <div className="flex flex-row sm:h-[calc(100vh-4rem)] md:h-[calc(100vh-6rem)] lg:h-[calc(100vh-8rem)] relative">
           {/* Navbar dentro del contenedor */}
           <NavBar />
 
