@@ -59,12 +59,15 @@ export const ChatAppProvider = ({ children }) => {
       if (userExists) {
         try {
           // Intenta obtener el nombre del usuario
+          console.log("User exists, trying to get username for:", acc);
           const username = await contract.getUsername(acc);
+          console.log("Username retrieved successfully:", username);
           setUserName(username);
           setFriendList(await contract.getMyFriendList());
         } catch (usernameError) {
           // Si falla obtener el username, probablemente hay datos corruptos
           console.warn("User exists but username is corrupted:", usernameError);
+          console.log("Error details:", usernameError.message);
           setUserName("");
           setFriendList([]);
         }
@@ -100,11 +103,21 @@ export const ChatAppProvider = ({ children }) => {
       if (userExists) {
         try {
           // Intenta obtener el nombre del usuario
-          setUserName(await contract.getUsername(acc));
+          console.log(
+            "ConnectWallet: User exists, trying to get username for:",
+            acc
+          );
+          const username = await contract.getUsername(acc);
+          console.log(
+            "ConnectWallet: Username retrieved successfully:",
+            username
+          );
+          setUserName(username);
           setFriendList(await contract.getMyFriendList());
         } catch (usernameError) {
           // Si falla obtener el username, probablemente hay datos corruptos
           console.warn("User exists but username is corrupted:", usernameError);
+          console.log("ConnectWallet: Error details:", usernameError.message);
           setUserName("");
           setFriendList([]);
         }
@@ -182,12 +195,27 @@ export const ChatAppProvider = ({ children }) => {
         setError("Please provide username");
         return;
       }
+
+      console.log("CreateAccount: Starting account creation for:", userName);
       const contract = await ConnectToContract();
       const getCreatedUser = await contract.createAccount(userName);
       setLoading(true);
       await getCreatedUser.wait();
-      window.location.reload();
+
+      console.log(
+        "CreateAccount: Account created successfully, updating local state"
+      );
+      // En lugar de recargar la página, actualizar el estado local
+      setUserName(userName);
+      console.log("CreateAccount: userName state updated to:", userName);
+      setFriendList(await contract.getMyFriendList());
+      setUserList(await contract.getAllAppUsers());
+      setLoading(false);
+
+      // window.location.reload(); // Comentado para evitar el reload
     } catch (err) {
+      console.error("CreateAccount: Error creating account:", err);
+      setLoading(false);
       setError("Error creating account, please reload the page");
     }
   };
@@ -323,6 +351,8 @@ export const ChatAppProvider = ({ children }) => {
         userList,
         error,
         logout, // Agregado aquí
+        currentUserName,
+        currentUserAddress,
       }}
     >
       {children}

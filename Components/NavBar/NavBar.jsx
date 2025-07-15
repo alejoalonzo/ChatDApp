@@ -209,7 +209,7 @@ const NavBar = () => {
                                         <div key={href} className="px-2">
                                             <LogOut 
                                                 variant="menuItem" 
-                                                containedMode={true}
+                                                containedMode={false}
                                                 onClose={() => setOpenModel(false)}
                                                 className={`
                                                     ${active === index ? "bg-[#FFBF00] text-[#2e353d]" : "text-white hover:bg-[#454b57]"}

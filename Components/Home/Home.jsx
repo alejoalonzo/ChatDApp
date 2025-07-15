@@ -9,7 +9,7 @@ import { NavBar, CreateAccountForm, Error, Loader, Tooltip, CreateAccountButton,
 import { CheckIfMetaMaskInstalled } from "@/Utils/apiFeature";
 
 const Home = () => {
-  const { account } = useContext(ChatAppContext);
+  const { account, userName } = useContext(ChatAppContext);
   const [showCreateAccount, setShowCreateAccount] = useState(false);
   const [showMetaMaskPrompt, setShowMetaMaskPrompt] = useState(false);
   const [error, setError] = useState(null);
