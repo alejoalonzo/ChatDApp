@@ -1,8 +1,12 @@
 "use client";
 
 //INTERNAL IMPORTS
-import { Home } from "@/Components";
+import { DashboardLayout, HomeContent } from "@/Components";
 
 export default function Page() {
-  return <Home />;
+  return (
+    <DashboardLayout>
+      <HomeContent />
+    </DashboardLayout>
+  );
 }

@@ -6,6 +6,8 @@ import Loader from "./Loader/Loader.jsx";
 import Error from "./Error/Error.jsx";
 import Model from "./Model/Model.jsx";
 import Home from "./Home/Home.jsx";
+import HomeContent from "./HomeContent/HomeContent.jsx";
+import DashboardLayout from "./DashboardLayout/DashboardLayout.jsx";
 import CreateAccountForm from "./CreateAccountForm/CreateAccountForm.jsx";
 import Tooltip from "./Tooltip/Tooltip.jsx";
 import UserActive from "./UserActive/UserActive.jsx";
@@ -22,6 +24,8 @@ export {
   Error,
   Model,
   Home,
+  HomeContent,
+  DashboardLayout,
   CreateAccountForm,
   Tooltip,
   UserActive,

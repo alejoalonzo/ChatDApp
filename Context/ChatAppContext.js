@@ -350,7 +350,7 @@ export const ChatAppProvider = ({ children }) => {
         loading,
         userList,
         error,
-        logout, // Agregado aquí
+        logout,
         currentUserName,
         currentUserAddress,
       }}
