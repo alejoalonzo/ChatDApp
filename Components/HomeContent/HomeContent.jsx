@@ -71,7 +71,7 @@ const HomeContent = () => {
                 Welcome to
               </h1>
               <h1 className="text-7xl font-black bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-400 bg-clip-text text-transparent">
-                CHAT DAPP
+                Chat Dapp
               </h1>
             </div>
 
@@ -135,7 +135,7 @@ const HomeContent = () => {
             Welcome to
           </h1>
           <h1 className="text-7xl font-black bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-400 bg-clip-text text-transparent" style={{ fontWeight: '950' }}>
-            CHAT DAPP
+            Chat Dapp
           </h1>
         </div>
 
