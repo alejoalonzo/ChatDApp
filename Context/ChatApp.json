@@ -92,7 +92,7 @@
           "type": "address"
         }
       ],
-      "name": "getUsername",
+      "name": "getUserName",
       "outputs": [
         {
           "internalType": "string",

@@ -4,10 +4,12 @@ import React, { useState, useContext, useEffect } from "react";
 
 //Internal Imports
 import { ChatAppContext } from "@/Context/ChatAppContext";
-import { Filter, DashboardLayout } from "@/Components";
+import { Filter, DashboardLayout, Friend } from "@/Components";
 
 const chat = () => {
-  const { userList, addFriend } = useContext(ChatAppContext);
+  const { userList, addFriend, friendList } = useContext(ChatAppContext);
+
+  console.log("Chat page - friendList:", friendList);
 
   return (
     <DashboardLayout>
@@ -20,8 +22,22 @@ const chat = () => {
         {/* Content area for friends and chats */}
         <div className="flex-1 p-4">
           {/* Aquí irá el contenido de amigos y chats */}
-          <div className="text-white text-center py-8">
-            <p className="text-gray-400">Friends and chats will appear here</p>
+          {/* Content area for friends and chats */}
+          <div className="flex-1 p-4">
+            <div className="mb-6">
+              <h3 className="text-xl font-semibold text-white mb-4">
+                Your Friends
+              </h3>
+              {friendList && friendList.length > 0 ? (
+                <Friend />
+              ) : (
+                <div className="text-white text-center py-8">
+                  <p className="text-gray-400">
+                    No friends added yet. Go to All Users to add some friends!
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

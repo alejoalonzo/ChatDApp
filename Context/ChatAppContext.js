@@ -19,6 +19,7 @@ import {
 export const ChatAppContext = React.createContext();
 
 export const ChatAppProvider = ({ children }) => {
+  const router = useRouter();
   // USESTATE -
   const [account, setAccount] = useState("");
   const [userName, setUserName] = useState("");
@@ -60,7 +61,7 @@ export const ChatAppProvider = ({ children }) => {
         try {
           // Intenta obtener el nombre del usuario
           console.log("User exists, trying to get username for:", acc);
-          const username = await contract.getUsername(acc);
+          const username = await contract.getUserName(acc);
           console.log("Username retrieved successfully:", username);
           setUserName(username);
           setFriendList(await contract.getMyFriendList());
@@ -107,7 +108,7 @@ export const ChatAppProvider = ({ children }) => {
             "ConnectWallet: User exists, trying to get username for:",
             acc
           );
-          const username = await contract.getUsername(acc);
+          const username = await contract.getUserName(acc);
           console.log(
             "ConnectWallet: Username retrieved successfully:",
             username
@@ -228,14 +229,47 @@ export const ChatAppProvider = ({ children }) => {
         setError("Please provide name and account address");
         return;
       }
+
+      console.log("AddFriend: Starting process with data:", {
+        friendName: name,
+        friendAddress: accountAddress,
+        currentUser: account,
+        currentUserName: userName,
+      });
+
       const contract = await ConnectToContract();
-      const addFriend = await contract.addFriend(name, accountAddress);
+      console.log(
+        "AddFriend: Contract connected, calling addFriend on blockchain..."
+      );
+
+      const addFriend = await contract.addFriend(accountAddress, name);
       setLoading(true);
+
+      console.log("AddFriend: Transaction sent, waiting for confirmation...", {
+        transactionHash: addFriend.hash,
+      });
+
       await addFriend.wait();
       setLoading(false);
+
+      console.log(
+        "AddFriend: Transaction confirmed! Friend added successfully:",
+        {
+          friendName: name,
+          friendAddress: accountAddress,
+          transactionHash: addFriend.hash,
+        }
+      );
+
+      // Actualizar la lista de amigos antes de navegar
+      const updatedFriendList = await contract.getMyFriendList();
+      console.log("AddFriend: Updated friend list:", updatedFriendList);
+      setFriendList(updatedFriendList);
+
       router.push("/");
       window.location.reload();
     } catch (err) {
+      console.error("AddFriend: Error details:", err);
       setError("Error adding friend");
     }
   };
@@ -269,7 +303,7 @@ export const ChatAppProvider = ({ children }) => {
 
       if (userExists) {
         try {
-          const userName = await contract.getUsername(userAddress);
+          const userName = await contract.getUserName(userAddress);
           setCurrentUserName(userName);
           setCurrentUserAddress(userAddress);
         } catch (usernameError) {
