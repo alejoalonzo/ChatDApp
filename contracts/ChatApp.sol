@@ -29,6 +29,9 @@ contract ChatApp {
     mapping(address => user) userList;
     mapping(bytes32 => message[]) allMessages;
 
+    // Evento para notificar la creación de usuario
+    event UserCreated(address indexed user, string username);
+
     //Check User Existence
     function userExists(address _user) public view returns (bool) {
         return bytes(userList[_user].username).length > 0;
@@ -41,6 +44,7 @@ contract ChatApp {
         require(bytes(_username).length > 0, "Username cannot be empty");
         userList[msg.sender].username = _username;
         getAllUsers.push(allUserStruct(_username, msg.sender));
+        emit UserCreated(msg.sender, _username); //azinc <- New event
     }
 
     //Get UserName

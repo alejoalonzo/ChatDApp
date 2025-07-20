@@ -139,6 +139,7 @@ export const ChatAppProvider = ({ children }) => {
     checkWallet();
 
     // Escuchar cambios en las cuentas de MetaMask
+    let contractListener;
     if (typeof window !== "undefined" && window.ethereum) {
       const handleAccountsChanged = accounts => {
         if (accounts.length === 0) {
@@ -165,6 +166,27 @@ export const ChatAppProvider = ({ children }) => {
 
       window.ethereum.on("accountsChanged", handleAccountsChanged);
 
+      // Listener de eventos del contrato para UserCreated (solo lectura, sin signer)
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const contract = new ethers.Contract(
+        ChatAppAddress,
+        ChatAppABI,
+        provider
+      );
+      contractListener = contract.on(
+        "UserCreated",
+        async (userAddress, userName) => {
+          console.log("Evento UserCreated detectado:", userAddress, userName);
+          // Actualizar la lista de usuarios y amigos
+          try {
+            setUserList(await contract.getAllAppUsers());
+            setFriendList(await contract.getMyFriendList());
+          } catch (e) {
+            console.error("Error actualizando listas tras UserCreated:", e);
+          }
+        }
+      );
+
       // Cleanup
       return () => {
         if (window.ethereum.removeListener) {
@@ -172,6 +194,10 @@ export const ChatAppProvider = ({ children }) => {
             "accountsChanged",
             handleAccountsChanged
           );
+        }
+        // Remover listener de evento UserCreated
+        if (contractListener && contractListener.removeAllListeners) {
+          contractListener.removeAllListeners("UserCreated");
         }
       };
     }
@@ -242,14 +268,14 @@ export const ChatAppProvider = ({ children }) => {
         "AddFriend: Contract connected, calling addFriend on blockchain..."
       );
 
-      const addFriend = await contract.addFriend(accountAddress, name);
+      const addFriendTx = await contract.addFriend(accountAddress, name);
       setLoading(true);
 
       console.log("AddFriend: Transaction sent, waiting for confirmation...", {
-        transactionHash: addFriend.hash,
+        transactionHash: addFriendTx.hash,
       });
 
-      await addFriend.wait();
+      await addFriendTx.wait();
       setLoading(false);
 
       console.log(
@@ -257,17 +283,18 @@ export const ChatAppProvider = ({ children }) => {
         {
           friendName: name,
           friendAddress: accountAddress,
-          transactionHash: addFriend.hash,
+          transactionHash: addFriendTx.hash,
         }
       );
 
-      // Actualizar la lista de amigos antes de navegar
+      // Actualizar la lista de amigos y usuarios
       const updatedFriendList = await contract.getMyFriendList();
-      console.log("AddFriend: Updated friend list:", updatedFriendList);
       setFriendList(updatedFriendList);
+      const updatedUserList = await contract.getAllAppUsers();
+      setUserList(updatedUserList);
 
-      router.push("/");
-      window.location.reload();
+      router.push("/"); // Navega a home, pero NO recarga la página
+      // Si quieres mostrar feedback visual, puedes agregar un mensaje o spinner
     } catch (err) {
       console.error("AddFriend: Error details:", err);
       setError("Error adding friend");
