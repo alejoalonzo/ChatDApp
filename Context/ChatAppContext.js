@@ -59,25 +59,18 @@ export const ChatAppProvider = ({ children }) => {
 
       if (userExists) {
         try {
-          // Intenta obtener el nombre del usuario
-          console.log("User exists, trying to get username for:", acc);
           const username = await contract.getUserName(acc);
-          console.log("Username retrieved successfully:", username);
           setUserName(username);
           setFriendList(await contract.getMyFriendList());
         } catch (usernameError) {
-          // Si falla obtener el username, probablemente hay datos corruptos
           console.warn("User exists but username is corrupted:", usernameError);
-          console.log("Error details:", usernameError.message);
           setUserName("");
           setFriendList([]);
         }
       } else {
-        // Usuario no tiene cuenta creada
         setUserName("");
         setFriendList([]);
       }
-
       setUserList(await contract.getAllAppUsers());
     } catch (err) {
       console.error("checkWallet error:", err);
@@ -103,31 +96,18 @@ export const ChatAppProvider = ({ children }) => {
 
       if (userExists) {
         try {
-          // Intenta obtener el nombre del usuario
-          console.log(
-            "ConnectWallet: User exists, trying to get username for:",
-            acc
-          );
           const username = await contract.getUserName(acc);
-          console.log(
-            "ConnectWallet: Username retrieved successfully:",
-            username
-          );
           setUserName(username);
           setFriendList(await contract.getMyFriendList());
         } catch (usernameError) {
-          // Si falla obtener el username, probablemente hay datos corruptos
           console.warn("User exists but username is corrupted:", usernameError);
-          console.log("ConnectWallet: Error details:", usernameError.message);
           setUserName("");
           setFriendList([]);
         }
       } else {
-        // Usuario no tiene cuenta creada
         setUserName("");
         setFriendList([]);
       }
-
       setUserList(await contract.getAllAppUsers());
     } catch (err) {
       console.error(err);
@@ -176,11 +156,16 @@ export const ChatAppProvider = ({ children }) => {
       contractListener = contract.on(
         "UserCreated",
         async (userAddress, userName) => {
-          console.log("Evento UserCreated detectado:", userAddress, userName);
-          // Actualizar la lista de usuarios y amigos
           try {
             setUserList(await contract.getAllAppUsers());
-            setFriendList(await contract.getMyFriendList());
+            const acc = await GetCurrentAccount();
+            if (
+              acc &&
+              acc.toLowerCase() === userAddress.toLowerCase() &&
+              (await contract.userExists(acc))
+            ) {
+              setFriendList(await contract.getMyFriendList());
+            }
           } catch (e) {
             console.error("Error actualizando listas tras UserCreated:", e);
           }
