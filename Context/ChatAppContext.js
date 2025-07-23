@@ -1,4 +1,5 @@
 "use client";
+// ...existing code...
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -41,11 +42,15 @@ export const ChatAppProvider = ({ children }) => {
       // Si el usuario hizo logout manual, no reconectar automáticamente
       if (userLoggedOut) {
         console.log("User logged out manually, skipping auto-reconnect");
+        setFriendList([]);
         return;
       }
 
       const acc = await GetCurrentAccount();
-      if (!acc) return; // Nadie ha conectado aún
+      if (!acc) {
+        setFriendList([]);
+        return;
+      }
 
       setAccount(acc);
 
@@ -61,7 +66,9 @@ export const ChatAppProvider = ({ children }) => {
         try {
           const username = await contract.getUserName(acc);
           setUserName(username);
-          setFriendList(await contract.getMyFriendList());
+          const rawFriendList = await contract.getMyFriendList();
+          const friendArray = Array.from(rawFriendList);
+          setFriendList(friendArray);
         } catch (usernameError) {
           console.warn("User exists but username is corrupted:", usernameError);
           setUserName("");
@@ -74,6 +81,7 @@ export const ChatAppProvider = ({ children }) => {
       setUserList(await contract.getAllAppUsers());
     } catch (err) {
       console.error("checkWallet error:", err);
+      setFriendList([]);
       setError("Please install and connect your wallet");
     }
   };
@@ -273,7 +281,11 @@ export const ChatAppProvider = ({ children }) => {
       );
 
       // Actualizar la lista de amigos y usuarios
-      const updatedFriendList = await contract.getMyFriendList();
+      const rawFriendList = await contract.getMyFriendList();
+      const updatedFriendList = rawFriendList.map(friend => ({
+        ...friend,
+        accountAddress: friend.accountAddress || friend.address || friend.id, // adapta según el nombre real
+      }));
       setFriendList(updatedFriendList);
       const updatedUserList = await contract.getAllAppUsers();
       setUserList(updatedUserList);

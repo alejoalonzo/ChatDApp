@@ -4,24 +4,16 @@ import FriendCard from "./card/card";
 import { ChatAppContext } from "@/Context/ChatAppContext";
 
 
-const Friend = () => {
-    const { 
-        sendMessage, 
-        account, 
-        friendList, 
-        readMessages, 
-        userName, 
-        loading,
-        currentUserName,
-        currentUserAddress,
-        readUser
-    } = useContext(ChatAppContext);
-    console.log( "Friend List: ", friendList);
+const Friend = ({ friendList, onSelectFriend }) => {
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <FriendCard />
-            <FriendCard />
-            <FriendCard />
+        <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-4">
+            {Array.isArray(friendList) && friendList.length > 0 ? (
+                friendList.map((el, i) => (
+                    <FriendCard key={i} el={el} i={i} onSelect={() => onSelectFriend(el)} />
+                ))
+            ) : (
+                <p className="col-span-full text-center text-gray-500">No friends found.</p>
+            )}
         </div>
     );
 }

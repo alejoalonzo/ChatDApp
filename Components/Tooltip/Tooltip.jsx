@@ -13,15 +13,15 @@ const Tooltip = ({ id, message, children, place = "top", className = "" }) => {
         id={id}
         place={place}
         style={{
-          backgroundColor: '#2e353d',
+          backgroundColor: '#22272d',
           color: '#ffffff',
-          border: '1px solid #454b57',
           borderRadius: '8px',
           fontSize: '12px',
           padding: '6px 10px',
           maxWidth: '200px',
           zIndex: 9999
         }}
+        border="#FFBF00"
         opacity={0.95}
         arrowColor="#2e353d"
       />
