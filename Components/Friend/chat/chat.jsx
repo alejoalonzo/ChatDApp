@@ -72,7 +72,7 @@ const Chat = ({
           <div className="text-gray-400 text-xs">{shortAddress(selectedFriend.address)}</div>
         </div>
       ) : (
-        <div className="text-gray-400 py-4">Selecciona un amigo para chatear</div>
+        <div className="text-gray-400 py-4">Select a friend to chat</div>
       )}
 
       {/* Mensajes */}
@@ -83,8 +83,8 @@ const Chat = ({
         style={{ background: 'var(--bg-tertiary)', borderRadius: '1.5rem', border: '1px solid var(--bg-accent)' }}
       >
         {loading || sending ? (
-          <div className="flex justify-center items-center">
-            <Loader className="animate-spin" /> Cargando...
+          <div className="flex justify-center items-center mt-10">
+            <Loader className="animate-spin" /> Loading...
           </div>
         ) : friendMessages?.length ? (
           friendMessages.map((msg, idx) => {
@@ -111,7 +111,7 @@ const Chat = ({
             );
           })
         ) : (
-          <div className="text-gray-500">No hay mensajes aún.</div>
+          <div className="text-gray-500">No messages yet.</div>
         )}
       </div>
 
