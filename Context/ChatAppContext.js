@@ -311,7 +311,7 @@ export const ChatAppProvider = ({ children }) => {
       setLoading(true);
       await sendMessage.wait();
       setLoading(false);
-      window.location.reload();
+      // window.location.reload();
     } catch (err) {
       setError("Error sending message");
     }

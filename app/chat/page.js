@@ -87,20 +87,6 @@ const chat = () => {
                 style={{ transition: "none" }}
               >
                 <div className="flex-1 min-h-0 overflow-y-auto p-6 custom-scrollbar">
-                  {selectedFriend ? (
-                    <div className="mb-6">
-                      <h2 className="text-2xl font-bold text-white mb-2">
-                        {selectedFriend.name}
-                      </h2>
-                      <p className="text-gray-400 text-sm">
-                        {selectedFriend.address}
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="mb-6 text-gray-500">
-                      Selecciona un amigo para ver el chat.
-                    </div>
-                  )}
                   {/* Chat */}
                   <Chat
                     functionName={sendMessage}
